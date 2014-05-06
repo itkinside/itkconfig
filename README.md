@@ -10,6 +10,8 @@ Go-projects and we think others may agree with us as well.
 * Makes writing **Key-Value** configuration files easy.
 * Allows, in contrast to JSON, comments in your files - just prepend them with a
   `#`.
+* If you want to use `#` in a value, or preserve leading and trailing spaces,
+  wrap the value in double quotes: `"#value"`
 * Use the same methods as when demarshalling JSON-files, just define your
   configuration struct with your wanted types and let ITKconfig take care of the
   rest.
