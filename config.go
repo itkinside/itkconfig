@@ -20,11 +20,15 @@ type Config struct {
 }
 
 func loadConfig(filename string) (config Config, err error) {
-	configReflect := reflect.ValueOf(&config).Elem()
+	return config, loadConfigWithDefaults(filename, &config)
+}
+
+func loadConfigWithDefaults(filename string, defaultConfig *Config) error {
+	configReflect := reflect.ValueOf(defaultConfig).Elem()
 
 	f, err := os.Open(filename)
 	if err != nil {
-		return config, err
+		return err
 	}
 	fh := bufio.NewScanner(f)
 
@@ -47,14 +51,14 @@ func loadConfig(filename string) (config Config, err error) {
 
 		keyVal := strings.SplitN(line, "=", 2)
 		if len(keyVal) < 2 {
-			return config, fmt.Errorf("Config line must contain \"=\": %s", line)
+			return fmt.Errorf("Config line must contain \"=\": %s", line)
 		}
 		key := strings.TrimSpace(keyVal[0])
 		value := strings.TrimSpace(keyVal[1])
 
 		field := configReflect.FieldByName(key)
 		if !field.IsValid() {
-			return config, fmt.Errorf("Config key is not valid: %s", key)
+			return fmt.Errorf("Config key is not valid: %s", key)
 		}
 
 		switch field.Kind() {
@@ -63,21 +67,21 @@ func loadConfig(filename string) (config Config, err error) {
 		case reflect.Int:
 			i, err := strconv.ParseInt(value, 10, 64)
 			if err != nil {
-				return config, fmt.Errorf("Invalid int \"%s\" in key \"%s\": %s", value, key, err)
+				return fmt.Errorf("Invalid int \"%s\" in key \"%s\": %s", value, key, err)
 			}
 			field.SetInt(i)
 		case reflect.Bool:
 			v, err := strconv.ParseBool(value)
 			if err != nil {
-				return config, fmt.Errorf("Invalid bool \"%s\" in key \"%s\": %s", value, key, err)
+				return fmt.Errorf("Invalid bool \"%s\" in key \"%s\": %s", value, key, err)
 			}
 			field.SetBool(v)
 		default:
-			return config, fmt.Errorf("Unsupported type: %s", field.Kind())
+			return fmt.Errorf("Unsupported type: %s", field.Kind())
 		}
 	}
 
-	return config, nil
+	return nil
 }
 
 func main() {
