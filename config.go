@@ -98,12 +98,24 @@ func LoadConfig(filename string, config interface{}) error {
 		switch field.Kind() {
 		case reflect.String:
 			field.SetString(value)
-		case reflect.Int:
-			i, err := strconv.ParseInt(value, 10, 64)
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			i, err := strconv.ParseInt(value, 10, field.Type().Bits())
 			if err != nil {
 				return fmt.Errorf("Invalid int \"%s\" in key \"%s\": %s", value, key, err)
 			}
 			field.SetInt(i)
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+			i, err := strconv.ParseUint(value, 10, field.Type().Bits())
+			if err != nil {
+				return fmt.Errorf("Invalid uint \"%s\" in key \"%s\": %s", value, key, err)
+			}
+			field.SetUint(i)
+		case reflect.Float32, reflect.Float64:
+			i, err := strconv.ParseFloat(value, field.Type().Bits())
+			if err != nil {
+				return fmt.Errorf("Invalid float \"%s\" in key \"%s\": %s", value, key, err)
+			}
+			field.SetFloat(i)
 		case reflect.Bool:
 			v, err := strconv.ParseBool(value)
 			if err != nil {
