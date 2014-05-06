@@ -35,7 +35,8 @@ func loadConfigWithDefaults(filename string, defaultConfig *Config) error {
 
 	for fh.Scan() {
 		var key, value string
-		lineParts := strings.Split(fh.Text(), "\"")
+		line := fh.Text()
+		lineParts := strings.Split(line, "\"")
 		for i, part := range lineParts {
 			if i%2 == 0 {
 				commentIndex := strings.Index(part, "#")
@@ -46,7 +47,15 @@ func loadConfigWithDefaults(filename string, defaultConfig *Config) error {
 					keyVal := strings.SplitN(part, "=", 2)
 					key = strings.TrimSpace(keyVal[0])
 					if len(keyVal) < 2 {
+						if i != len(lineParts)-1 && commentIndex == -1 {
+							return fmt.Errorf("\" are not allowed in key: %s", line)
+						}
+						if key != "" {
+							return fmt.Errorf("Config line must contain \"=\": %s", line)
+						}
 						break
+					} else if key == "" {
+						return fmt.Errorf("Key can't be empty: %s", line)
 					}
 					part = strings.TrimLeftFunc(keyVal[1], unicode.IsSpace)
 				}
