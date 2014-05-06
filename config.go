@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 type Config struct {
@@ -33,28 +34,40 @@ func loadConfigWithDefaults(filename string, defaultConfig *Config) error {
 	fh := bufio.NewScanner(f)
 
 	for fh.Scan() {
+		var key, value string
 		lineParts := strings.Split(fh.Text(), "\"")
-		line := ""
-		for k, v := range lineParts {
-			if k%2 == 0 {
-				if i := strings.Index(v, "#"); i != -1 {
-					line += v[:i]
+		for i, part := range lineParts {
+			if i%2 == 0 {
+				commentIndex := strings.Index(part, "#")
+				if commentIndex != -1 {
+					part = part[:commentIndex]
+				}
+				if i == 0 {
+					keyVal := strings.SplitN(part, "=", 2)
+					key = strings.TrimSpace(keyVal[0])
+					if len(keyVal) < 2 {
+						break
+					}
+					part = strings.TrimLeftFunc(keyVal[1], unicode.IsSpace)
+				}
+				if i == len(lineParts)-1 || commentIndex != -1 {
+					part = strings.TrimRightFunc(part, unicode.IsSpace)
+				}
+				if commentIndex != -1 {
+					value += part
 					break
 				}
 			}
-			line += v
+			value += part
 		}
 
-		if strings.TrimSpace(line) == "" {
+		if key == "" {
 			continue
 		}
 
-		keyVal := strings.SplitN(line, "=", 2)
-		if len(keyVal) < 2 {
-			return fmt.Errorf("Config line must contain \"=\": %s", line)
+		if value == "" {
+			return fmt.Errorf("Value of key \"%s\" can't be empty.", key)
 		}
-		key := strings.TrimSpace(keyVal[0])
-		value := strings.TrimSpace(keyVal[1])
 
 		field := configReflect.FieldByName(key)
 		if !field.IsValid() {
