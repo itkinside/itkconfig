@@ -122,6 +122,26 @@ func LoadConfig(filename string, config interface{}) error {
 				return fmt.Errorf("Invalid bool \"%s\" in key \"%s\": %s", value, key, err)
 			}
 			field.SetBool(v)
+		case reflect.Slice:
+			// Create a empty slice, if no slice exists for this key already.
+			if field.IsNil() {
+				field.Set(reflect.MakeSlice(field.Type(), 0, 0))
+			}
+
+			// Convert the value (string) to Value struct defined in reflect.
+			v := reflect.ValueOf(value)
+
+			// Check that the types (of all values) always match the key-type.
+			if field.Type().Elem().Kind() != v.Kind() {
+				return fmt.Errorf("Mismatched types between slice and value")
+			}
+
+			// Create slice of value given in config-file.
+			s := reflect.MakeSlice(reflect.SliceOf(v.Type()), 0, 0)
+			s = reflect.Append(s, v)
+
+			// Add this slice (with one element) to the config-slice.
+			field.Set(reflect.AppendSlice(field, s))
 		default:
 			return fmt.Errorf("Unsupported type: %s", field.Kind())
 		}
