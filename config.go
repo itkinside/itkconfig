@@ -72,6 +72,8 @@ func loadConfig(filename string) (config Config, err error) {
 				return config, fmt.Errorf("Invalid bool \"%s\" in key \"%s\": %s", value, key, err)
 			}
 			field.SetBool(v)
+		default:
+			return config, fmt.Errorf("Unsupported type: %s", field.Kind())
 		}
 	}
 
