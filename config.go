@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Trygve Aaberge
 // Released under the MIT License, http://opensource.org/licenses/MIT
 
-package main
+package itkconfig
 
 import (
 	"bufio"
@@ -13,20 +13,9 @@ import (
 	"unicode"
 )
 
-type Config struct {
-	Server  string
-	Channel string
-	Nr      int
-	IPv6    bool
-}
-
-func loadConfig(filename string) (config Config, err error) {
-	return config, loadConfigWithDefaults(filename, &config)
-}
-
-func loadConfigWithDefaults(filename string, defaultConfig *Config) error {
+func LoadConfig(filename string, config interface{}) error {
 	// Use reflect to place config keys into the right element in the struct
-	configReflect := reflect.ValueOf(defaultConfig).Elem()
+	configReflect := reflect.ValueOf(config).Elem()
 
 	f, err := os.Open(filename)
 	if err != nil {
@@ -119,17 +108,4 @@ func loadConfigWithDefaults(filename string, defaultConfig *Config) error {
 	}
 
 	return nil
-}
-
-func main() {
-	config, err := loadConfig("itkbot.conf")
-	if err != nil {
-		fmt.Println("Couldn't load config:", err)
-		return
-	}
-
-	fmt.Println("Server:", config.Server)
-	fmt.Println("Channel:", config.Channel)
-	fmt.Println("Nr:", config.Nr)
-	fmt.Println("IPv6:", config.IPv6)
 }
