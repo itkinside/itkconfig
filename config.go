@@ -5,6 +5,7 @@ package itkconfig
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
@@ -15,7 +16,14 @@ import (
 
 func LoadConfig(filename string, config interface{}) error {
 	// Use reflect to place config keys into the right element in the struct
-	configReflect := reflect.ValueOf(config).Elem()
+	configPtrReflect := reflect.ValueOf(config)
+	if configPtrReflect.Kind() != reflect.Ptr {
+		return errors.New("Config argument must be a pointer")
+	}
+	configReflect := configPtrReflect.Elem()
+	if configReflect.Kind() != reflect.Struct {
+		return errors.New("Config argument must be a pointer to a struct")
+	}
 
 	f, err := os.Open(filename)
 	if err != nil {
