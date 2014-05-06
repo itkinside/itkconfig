@@ -29,11 +29,15 @@ func LoadConfig(filename string, config interface{}) error {
 	if err != nil {
 		return err
 	}
-	fh := bufio.NewScanner(f)
+	r := bufio.NewReader(f)
 
-	for fh.Scan() {
+	for {
+		line, err := r.ReadString('\n')
+		if err != nil {
+			break
+		}
+
 		var key, value string
-		line := fh.Text()
 		lineParts := strings.Split(line, "\"")
 		// Split the line on ", because we want to keep parts
 		// inside "" unchanged.
