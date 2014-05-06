@@ -4,8 +4,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -18,17 +19,18 @@ type Config struct {
 	IPv6    bool
 }
 
-func loadConfig(file string) (config Config, err error) {
-	configStr, err := ioutil.ReadFile(file)
+func loadConfig(filename string) (config Config, err error) {
+	configReflect := reflect.ValueOf(&config).Elem()
+
+	f, err := os.Open(filename)
 	if err != nil {
 		return config, err
 	}
+	fh := bufio.NewScanner(f)
 
-	configReflect := reflect.ValueOf(&config).Elem()
-
-	for _, line := range strings.Split(string(configStr), "\n") {
-		lineParts := strings.Split(line, "\"")
-		line = ""
+	for fh.Scan() {
+		lineParts := strings.Split(fh.Text(), "\"")
+		line := ""
 		for k, v := range lineParts {
 			if k%2 == 0 {
 				if i := strings.Index(v, "#"); i != -1 {
