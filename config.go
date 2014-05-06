@@ -1,3 +1,6 @@
+// Copyright (c) 2014 Trygve Aaberge
+// Released under the MIT License, http://opensource.org/licenses/MIT
+
 package main
 
 import (
