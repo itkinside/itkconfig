@@ -3,18 +3,18 @@
 Originally started as an internal project at the [Student society in
 Trondheim](http://samfundet.no) this package has now been open sourced, as we
 believe it is the simplest and best way to manage configuration files for
-Go-projects and we'd think others may agree with us as well.
+Go-projects and we think others may agree with us as well.
 
 ## Features and core-principles
 
 * Makes writing **Key-Value** configuration files easy.
-* Allows, in contrast to JSON, comments in your files - just prepend it with a
+* Allows, in contrast to JSON, comments in your files - just prepend them with a
   `#`.
 * Use the same methods as when demarshalling JSON-files, just define your
   configuration struct with your wanted types and let ITKconfig take care of the
   rest.
-* Source code is simple and less than 100 lines, this makes it easy to
-  understand the flow, but also make changes if you'd like.
+* Source code is simple and about 100 lines, this makes it easy to understand
+  the flow and also to make changes if you like.
 
 ## Example configuration file
 
@@ -25,7 +25,7 @@ your Web-application. It could look like:
     Port = 8000
 
     # Folder where we find our templates
-    TemplatesFolder = "templates"
+    TemplatesFolder = templates
 
     # Enable or disable debug mode, giving more output to the user.
     Debug = true
@@ -36,9 +36,9 @@ application by the following simple code:
     package main
 
     import (
+      "fmt"
       "github.com/itkinside/itkconfig"
       "log"
-      "fmt"
     )
 
     type Config struct {
@@ -50,14 +50,14 @@ application by the following simple code:
     func main() {
       // Some sane defaults for our project.
       config := &Config{
-        Port: 80,
-        TemplatesFolder: 'temps',
-        Debug: false,
+        Port:            80,
+        TemplatesFolder: "temps",
+        Debug:           false,
       }
 
-      // Override defaults with config-file, if any.
+      // Override defaults with config-file.
       err := itkconfig.LoadConfig("myapp.config", config)
-      if (err != nil) {
+      if err != nil {
         log.Fatal(err)
       }
 
