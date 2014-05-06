@@ -67,10 +67,11 @@ func loadConfig(filename string) (config Config, err error) {
 			}
 			field.SetInt(i)
 		case reflect.Bool:
-			if value != "true" && value != "false" {
-				return config, fmt.Errorf("Invalid bool \"%s\" in key \"%s\": must be true or false", value, key)
+			v, err := strconv.ParseBool(value)
+			if err != nil {
+				return config, fmt.Errorf("Invalid bool \"%s\" in key \"%s\": %s", value, key, err)
 			}
-			field.SetBool(value == "true")
+			field.SetBool(v)
 		}
 	}
 
