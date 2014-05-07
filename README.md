@@ -32,6 +32,10 @@ your Web-application. It could look like:
     # Enable or disable debug mode, giving more output to the user.
     Debug = true
 
+    # Various contact points for the admins
+    AdminEmail foo@mailinator.com
+    AdminEmail bar@mailinator.com
+
 Then, provided that this file is called `myapp.config` we can load it into our
 application by the following simple code:
 
@@ -47,6 +51,7 @@ application by the following simple code:
       Port            int
       TemplatesFolder string
       Debug           bool
+      AdminEmail      []string
     }
 
     func main() {
@@ -55,9 +60,10 @@ application by the following simple code:
         Port:            80,
         TemplatesFolder: "temps",
         Debug:           false,
+        AdminEmail:      []string{"admin@mailinator.com"},
       }
 
-      // Override defaults with config-file.
+      // Override (or append on) defaults with config-file.
       err := itkconfig.LoadConfig("myapp.config", config)
       if err != nil {
         log.Fatal(err)
@@ -67,6 +73,9 @@ application by the following simple code:
       fmt.Printf("Port: %d\n", config.Port)
       fmt.Printf("Templates: %s\n", config.TemplatesFolder)
       fmt.Printf("Debug: %v\n", config.Debug)
+      for i, email := range config.AdminEmail {
+        fmt.Printf("Admin email %d: %s\n", i, email)
+      }
     }
 
 Could it be more simple, and yet so powerful?
