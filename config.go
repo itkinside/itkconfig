@@ -14,6 +14,39 @@ import (
 	"unicode"
 )
 
+func parseField(key, value string, fieldType reflect.Type) (reflect.Value, error) {
+	switch fieldType.Kind() {
+	case reflect.String:
+		return reflect.ValueOf(value), nil
+	case reflect.Bool:
+		v, err := strconv.ParseBool(value)
+		if err != nil {
+			return reflect.ValueOf(nil), fmt.Errorf("Invalid bool \"%s\" in key \"%s\": %s", value, key, err)
+		}
+		return reflect.ValueOf(v), nil
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		i, err := strconv.ParseInt(value, 10, fieldType.Bits())
+		if err != nil {
+			return reflect.ValueOf(nil), fmt.Errorf("Invalid int \"%s\" in key \"%s\": %s", value, key, err)
+		}
+		return reflect.ValueOf(i).Convert(fieldType), nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		i, err := strconv.ParseUint(value, 10, fieldType.Bits())
+		if err != nil {
+			return reflect.ValueOf(nil), fmt.Errorf("Invalid uint \"%s\" in key \"%s\": %s", value, key, err)
+		}
+		return reflect.ValueOf(i).Convert(fieldType), nil
+	case reflect.Float32, reflect.Float64:
+		i, err := strconv.ParseFloat(value, fieldType.Bits())
+		if err != nil {
+			return reflect.ValueOf(nil), fmt.Errorf("Invalid float \"%s\" in key \"%s\": %s", value, key, err)
+		}
+		return reflect.ValueOf(i).Convert(fieldType), nil
+	default:
+		return reflect.ValueOf(nil), fmt.Errorf("Unsupported type: %s", fieldType.Kind())
+	}
+}
+
 func LoadConfig(filename string, config interface{}) error {
 	// Use reflect to place config keys into the right element in the struct
 	configPtrReflect := reflect.ValueOf(config)
@@ -96,32 +129,6 @@ func LoadConfig(filename string, config interface{}) error {
 		}
 
 		switch field.Kind() {
-		case reflect.String:
-			field.SetString(value)
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			i, err := strconv.ParseInt(value, 10, field.Type().Bits())
-			if err != nil {
-				return fmt.Errorf("Invalid int \"%s\" in key \"%s\": %s", value, key, err)
-			}
-			field.SetInt(i)
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-			i, err := strconv.ParseUint(value, 10, field.Type().Bits())
-			if err != nil {
-				return fmt.Errorf("Invalid uint \"%s\" in key \"%s\": %s", value, key, err)
-			}
-			field.SetUint(i)
-		case reflect.Float32, reflect.Float64:
-			i, err := strconv.ParseFloat(value, field.Type().Bits())
-			if err != nil {
-				return fmt.Errorf("Invalid float \"%s\" in key \"%s\": %s", value, key, err)
-			}
-			field.SetFloat(i)
-		case reflect.Bool:
-			v, err := strconv.ParseBool(value)
-			if err != nil {
-				return fmt.Errorf("Invalid bool \"%s\" in key \"%s\": %s", value, key, err)
-			}
-			field.SetBool(v)
 		case reflect.Slice:
 			// Create a empty slice, if no slice exists for this key already.
 			if field.IsNil() {
@@ -129,17 +136,19 @@ func LoadConfig(filename string, config interface{}) error {
 			}
 
 			// Convert the value (string) to Value struct defined in reflect.
-			v := reflect.ValueOf(value)
-
-			// Check that the types (of all values) always match the key-type.
-			if field.Type().Elem().Kind() != v.Kind() {
-				return fmt.Errorf("Mismatched types between slice and value")
+			v, err := parseField(key, value, field.Type().Elem())
+			if err != nil {
+				return err
 			}
 
-			// Add value the config-slice.
+			// Add value to the config-slice.
 			field.Set(reflect.Append(field, v))
 		default:
-			return fmt.Errorf("Unsupported type: %s", field.Kind())
+			v, err := parseField(key, value, field.Type())
+			if err != nil {
+				return err
+			}
+			field.Set(v)
 		}
 	}
 
