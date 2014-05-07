@@ -80,3 +80,95 @@ application by the following simple code:
     }
 
 Could it be more simple, and yet so powerful?
+
+## Some useful tips
+
+#### Comments
+
+The hash symbol is your friend, and you can use it wherever you want.
+You may also use it inside a variable by escaping it:
+
+    # This is a comment
+    Key = some value # Also a comment
+    Foo = "#something" # This is first comment on this line.
+
+##### Lists of key-values
+
+Often a simple Key => Value mapping is not sufficient, and you want a
+key mapping to an array of values. This if fully supported and you can
+define your struct as:
+
+    type Config struct {
+      Foo []string
+      Bar []float64
+      Zoo []int
+    }
+
+And then in your config-file:
+
+    Foo = string number one.
+    Foo = string number two.
+    Bar = 1.0
+    Bar = 2.0
+    Zoo = 1
+    Zoo = 2
+
+Which, you guessed it, will map to the arrays `Foo{"string number one.",
+"string number two"}`, `Bar{1.0,2.0}` and `Zoo{1,2}`.
+
+#### Which types are valid?
+
+At the moment the following types are valid to use when unmarshaling
+your config-file:
+
+* String
+* Int, Int8, Int16, Int32 and Int64
+* Uint, Uint8, Uint16, Uint32 and Uint64
+* Float32 and Float64
+* Bool
+
+And every one of those as slices, as well. For type definitions and more
+details about other types in Golang please refer to [their doc on the
+subject](http://golang.org/ref/spec#Types).
+
+#### Using defaults
+
+There are three parts to parsing and defining a config in your
+application, given you want to set default values different from those
+used by Golang.
+
+First you need to define your Config-type. This is done in order to
+unmarshal correctly. It is an important step for a type-safe language.
+An example definition looks like:
+
+    type Config struct {
+      Foo string
+    }
+
+
+Second you need to create a default-variable of the type you defined in
+the previous step.
+
+    cfg := &Config{
+      Foo: "My default string",
+    }
+
+As you can see our variable `cfg` is a pointer to a Config-type. This
+pointer is passed on to ITKconfig which sets the appropriate fields
+based on your config file.
+
+Third you use ITKconfig to parse your config-file, validate it and then
+override your defaults. This is simply done by:
+
+    itkconfig.LoadConfig("filename.conf", cfg)
+
+If you have defined a slice-type in your struct the default-slice will
+not be overwritten, but rather elements from the config-file will be
+appended on.
+
+## Authors
+
+    * Trygve Aaberge ([trygveaa@samfundet.no](mailto:trygveaa@samfundet.no)
+    * Herman Schistad ([hermansc@samfundet.no](mailto:hermansc@samfundet.no)
+
+Pull-request, your issues and any feedback is greatly appricated.
