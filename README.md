@@ -34,8 +34,8 @@ your Web-application. It could look like:
     Debug = true
 
     # Various contact points for the admins
-    AdminEmail foo@mailinator.com
-    AdminEmail bar@mailinator.com
+    AdminEmail = foo@mailinator.com
+    AdminEmail = bar@mailinator.com
 
 Then, provided that this file is called `myapp.config` we can load it into our
 application by the following simple code:
