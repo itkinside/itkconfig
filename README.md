@@ -24,60 +24,64 @@ your use-cases and feedback, if any.
 An example scenario is given where you want to provide a configuration file to
 your Web-application. It could look like:
 
-    # Port that the webservice is listening to
-    Port = 8000
+```bash
+# Port that the webservice is listening to
+Port = 8000
 
-    # Folder where we find our templates
-    TemplatesFolder = templates
+# Folder where we find our templates
+TemplatesFolder = templates
 
-    # Enable or disable debug mode, giving more output to the user.
-    Debug = true
+# Enable or disable debug mode, giving more output to the user.
+Debug = true
 
-    # Various contact points for the admins
-    AdminEmail = foo@mailinator.com
-    AdminEmail = bar@mailinator.com
+# Various contact points for the admins
+AdminEmail = foo@mailinator.com
+AdminEmail = bar@mailinator.com
+```
 
 Then, provided that this file is called `myapp.config` we can load it into our
 application by the following simple code:
 
-    package main
+```go
+package main
 
-    import (
-      "fmt"
-      "github.com/itkinside/itkconfig"
-      "log"
-    )
+import (
+  "fmt"
+  "github.com/itkinside/itkconfig"
+  "log"
+)
 
-    type Config struct {
-      Port            int
-      TemplatesFolder string
-      Debug           bool
-      AdminEmail      []string
-    }
+type Config struct {
+  Port            int
+  TemplatesFolder string
+  Debug           bool
+  AdminEmail      []string
+}
 
-    func main() {
-      // Some sane defaults for our project.
-      config := &Config{
-        Port:            80,
-        TemplatesFolder: "temps",
-        Debug:           false,
-        AdminEmail:      []string{"admin@mailinator.com"},
-      }
+func main() {
+  // Some sane defaults for our project.
+  config := &Config{
+    Port:            80,
+    TemplatesFolder: "temps",
+    Debug:           false,
+    AdminEmail:      []string{"admin@mailinator.com"},
+  }
 
-      // Override (or append on) defaults with config-file.
-      err := itkconfig.LoadConfig("myapp.config", config)
-      if err != nil {
-        log.Fatal(err)
-      }
+  // Override (or append on) defaults with config-file.
+  err := itkconfig.LoadConfig("myapp.config", config)
+  if err != nil {
+    log.Fatal(err)
+  }
 
-      // Print our variables, just to show off.
-      fmt.Printf("Port: %d\n", config.Port)
-      fmt.Printf("Templates: %s\n", config.TemplatesFolder)
-      fmt.Printf("Debug: %v\n", config.Debug)
-      for i, email := range config.AdminEmail {
-        fmt.Printf("Admin email %d: %s\n", i, email)
-      }
-    }
+  // Print our variables, just to show off.
+  fmt.Printf("Port: %d\n", config.Port)
+  fmt.Printf("Templates: %s\n", config.TemplatesFolder)
+  fmt.Printf("Debug: %v\n", config.Debug)
+  for i, email := range config.AdminEmail {
+    fmt.Printf("Admin email %d: %s\n", i, email)
+  }
+}
+```
 
 Could it be more simple, and yet so powerful?
 
@@ -88,9 +92,11 @@ Could it be more simple, and yet so powerful?
 The hash symbol is your friend, and you can use it wherever you want.
 You may also use it inside a variable by escaping it:
 
-    # This is a comment
-    Key = some value # Also a comment
-    Foo = "#something" # This is first comment on this line.
+```bash
+# This is a comment
+Key = some value # Also a comment
+Foo = "#something" # This is first comment on this line.
+```
 
 ##### Lists of key-values
 
@@ -98,20 +104,24 @@ Often a simple Key => Value mapping is not sufficient, and you want a
 key mapping to an array of values. This if fully supported and you can
 define your struct as:
 
-    type Config struct {
-      Foo []string
-      Bar []float64
-      Zoo []int
-    }
+```go
+type Config struct {
+  Foo []string
+  Bar []float64
+  Zoo []int
+}
+```
 
 And then in your config-file:
 
-    Foo = string number one.
-    Foo = string number two.
-    Bar = 1.0
-    Bar = 2.0
-    Zoo = 1
-    Zoo = 2
+```bash
+Foo = string number one.
+Foo = string number two.
+Bar = 1.0
+Bar = 2.0
+Zoo = 1
+Zoo = 2
+```
 
 Which, you guessed it, will map to the arrays `Foo{"string number one.",
 "string number two"}`, `Bar{1.0,2.0}` and `Zoo{1,2}`.
@@ -141,17 +151,21 @@ First you need to define your Config-type. This is done in order to
 unmarshal correctly. It is an important step for a type-safe language.
 An example definition looks like:
 
-    type Config struct {
-      Foo string
-    }
+```go
+type Config struct {
+  Foo string
+}
+```
 
 
 Second you need to create a default-variable of the type you defined in
 the previous step.
 
-    cfg := &Config{
-      Foo: "My default string",
-    }
+```go
+cfg := &Config{
+  Foo: "My default string",
+}
+```
 
 As you can see our variable `cfg` is a pointer to a Config-type. This
 pointer is passed on to ITKconfig which sets the appropriate fields
@@ -160,7 +174,9 @@ based on your config file.
 Third you use ITKconfig to parse your config-file, validate it and then
 override your defaults. This is simply done by:
 
-    itkconfig.LoadConfig("filename.conf", cfg)
+```go
+itkconfig.LoadConfig("filename.conf", cfg)
+```
 
 If you have defined a slice-type in your struct the default-slice will
 not be overwritten, but rather elements from the config-file will be
