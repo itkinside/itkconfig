@@ -168,7 +168,7 @@ appended on.
 
 ## Authors
 
-    * Trygve Aaberge ([trygveaa@samfundet.no](mailto:trygveaa@samfundet.no)
-    * Herman Schistad ([hermansc@samfundet.no](mailto:hermansc@samfundet.no)
+* Trygve Aaberge ([trygveaa@samfundet.no](mailto:trygveaa@samfundet.no)
+* Herman Schistad ([hermansc@samfundet.no](mailto:hermansc@samfundet.no)
 
 Pull-request, your issues and any feedback is greatly appricated.
