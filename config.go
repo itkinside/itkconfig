@@ -136,12 +136,8 @@ func LoadConfig(filename string, config interface{}) error {
 				return fmt.Errorf("Mismatched types between slice and value")
 			}
 
-			// Create slice of value given in config-file.
-			s := reflect.MakeSlice(reflect.SliceOf(v.Type()), 0, 0)
-			s = reflect.Append(s, v)
-
-			// Add this slice (with one element) to the config-slice.
-			field.Set(reflect.AppendSlice(field, s))
+			// Add value the config-slice.
+			field.Set(reflect.Append(field, v))
 		default:
 			return fmt.Errorf("Unsupported type: %s", field.Kind())
 		}
