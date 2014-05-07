@@ -3,7 +3,8 @@
 Originally started as an internal project at the [Student society in
 Trondheim](http://samfundet.no) this package has now been open sourced, as we
 believe it is the simplest and best way to manage configuration files for
-Go-projects and we think others may agree with us as well.
+Go-projects. It serves its purpose for our projects, but we would love to hear
+your use-cases and feedback, if any.
 
 ## Features and core-principles
 
