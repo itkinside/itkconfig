@@ -15,8 +15,8 @@ Go-projects and we think others may agree with us as well.
 * Use the same methods as when demarshalling JSON-files, just define your
   configuration struct with your wanted types and let ITKconfig take care of the
   rest.
-* Source code is simple and about 100 lines, this makes it easy to understand
-  the flow and also to make changes if you like.
+* Source code is simple and short, which makes it easy to understand the flow
+  of the program, but also make changes to the library if you like.
 
 ## Example configuration file
 
