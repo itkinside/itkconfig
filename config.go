@@ -24,29 +24,29 @@ func parseField(key, value string, fieldType reflect.Type) (reflect.Value, error
 	case reflect.Bool:
 		v, err := strconv.ParseBool(value)
 		if err != nil {
-			return reflect.ValueOf(nil), fmt.Errorf("Invalid bool \"%s\" in key \"%s\": %s", value, key, err)
+			return reflect.ValueOf(nil), fmt.Errorf("invalid bool \"%s\" in key \"%s\": %s", value, key, err)
 		}
 		return reflect.ValueOf(v), nil
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		i, err := strconv.ParseInt(value, 10, fieldType.Bits())
 		if err != nil {
-			return reflect.ValueOf(nil), fmt.Errorf("Invalid int \"%s\" in key \"%s\": %s", value, key, err)
+			return reflect.ValueOf(nil), fmt.Errorf("invalid int \"%s\" in key \"%s\": %s", value, key, err)
 		}
 		return reflect.ValueOf(i).Convert(fieldType), nil
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		i, err := strconv.ParseUint(value, 10, fieldType.Bits())
 		if err != nil {
-			return reflect.ValueOf(nil), fmt.Errorf("Invalid uint \"%s\" in key \"%s\": %s", value, key, err)
+			return reflect.ValueOf(nil), fmt.Errorf("invalid uint \"%s\" in key \"%s\": %s", value, key, err)
 		}
 		return reflect.ValueOf(i).Convert(fieldType), nil
 	case reflect.Float32, reflect.Float64:
 		i, err := strconv.ParseFloat(value, fieldType.Bits())
 		if err != nil {
-			return reflect.ValueOf(nil), fmt.Errorf("Invalid float \"%s\" in key \"%s\": %s", value, key, err)
+			return reflect.ValueOf(nil), fmt.Errorf("invalid float \"%s\" in key \"%s\": %s", value, key, err)
 		}
 		return reflect.ValueOf(i).Convert(fieldType), nil
 	default:
-		return reflect.ValueOf(nil), fmt.Errorf("Unsupported type: %s", fieldType.Kind())
+		return reflect.ValueOf(nil), fmt.Errorf("unsupported type: %s", fieldType.Kind())
 	}
 }
 
@@ -57,11 +57,11 @@ func LoadConfig(filename string, config interface{}) error {
 	// Use reflect to place config keys into the right element in the struct
 	configPtrReflect := reflect.ValueOf(config)
 	if configPtrReflect.Kind() != reflect.Ptr {
-		return errors.New("Config argument must be a pointer")
+		return errors.New("config argument must be a pointer")
 	}
 	configReflect := configPtrReflect.Elem()
 	if configReflect.Kind() != reflect.Struct {
-		return errors.New("Config argument must be a pointer to a struct")
+		return errors.New("config argument must be a pointer to a struct")
 	}
 
 	f, err := os.Open(filename)
@@ -95,13 +95,13 @@ func LoadConfig(filename string, config interface{}) error {
 						}
 						if key != "" {
 							// Last line, which means no =
-							return fmt.Errorf("Config line must contain \"=\": %s", line)
+							return fmt.Errorf("config line must contain \"=\": %s", line)
 						}
 						// The line is only comments
 						break
 					} else if key == "" {
 						// Line had a =, but only spaces before it
-						return fmt.Errorf("Key can't be empty: %s", line)
+						return fmt.Errorf("key can't be empty: %s", line)
 					}
 					// We want to trim space at the start of the value
 					part = strings.TrimLeftFunc(keyVal[1], unicode.IsSpace)
@@ -125,13 +125,13 @@ func LoadConfig(filename string, config interface{}) error {
 		}
 
 		if value == "" {
-			return fmt.Errorf("Value of key \"%s\" can't be empty.", key)
+			return fmt.Errorf("value of key \"%s\" can't be empty", key)
 		}
 
 		// Fetch the field in the config struct with the same name as the key
 		field := configReflect.FieldByName(key)
 		if !field.IsValid() {
-			return fmt.Errorf("Config key is not valid: %s", key)
+			return fmt.Errorf("config key is not valid: %s", key)
 		}
 
 		switch field.Kind() {
