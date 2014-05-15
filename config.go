@@ -68,6 +68,7 @@ func LoadConfig(filename string, config interface{}) error {
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 	fh := bufio.NewScanner(f)
 
 	for fh.Scan() {
