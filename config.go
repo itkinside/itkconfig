@@ -1,6 +1,8 @@
 // Copyright (c) 2014 Trygve Aaberge and contributors
 // Released under the LGPLv2.1, see LICENSE
 
+// Package itkconfig implements parsing of configuration files through the use
+// of reflection.
 package itkconfig
 
 import (
@@ -14,6 +16,7 @@ import (
 	"unicode"
 )
 
+// parseField parses a field based on its field type.
 func parseField(key, value string, fieldType reflect.Type) (reflect.Value, error) {
 	switch fieldType.Kind() {
 	case reflect.String:
@@ -47,6 +50,9 @@ func parseField(key, value string, fieldType reflect.Type) (reflect.Value, error
 	}
 }
 
+// LoadConfig loads the provided configuration file and parses it through the
+// use of reflection according to the type definition of config, which has to be
+// a pointer to a struct.
 func LoadConfig(filename string, config interface{}) error {
 	// Use reflect to place config keys into the right element in the struct
 	configPtrReflect := reflect.ValueOf(config)
