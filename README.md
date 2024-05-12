@@ -98,7 +98,23 @@ Key = some value # Also a comment
 Foo = "#something" # This is first comment on this line.
 ```
 
-##### Lists of key-values
+#### String parsing
+
+Double quotes are removed when parsing strings.
+
+This is the case when writing a string without surrounding them with quotes:
+```bash
+Foo = ba"r
+# Gets parsed as "bar"
+```
+
+Or when writing strings with quotes surrounding them:
+```bash
+Foo = "ba"r"
+# Gets parsed as "bar"
+```
+
+#### Lists of key-values
 
 Often a simple Key => Value mapping is not sufficient, and you want a
 key mapping to an array of values. This if fully supported and you can
