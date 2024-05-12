@@ -134,6 +134,9 @@ func LoadConfig(filename string, config interface{}) error {
 		if !field.IsValid() {
 			return fmt.Errorf("config key is not valid: %s", key)
 		}
+		if !field.CanSet() {
+			return fmt.Errorf("cannot set unexported field: %s", key)
+		}
 
 		switch field.Kind() {
 		case reflect.Slice:
