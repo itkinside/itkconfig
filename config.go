@@ -11,9 +11,9 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
-	"unicode"
 )
 
 // parseField parses a field based on its field type.
@@ -50,6 +50,30 @@ func parseField(key, value string, fieldType reflect.Type) (reflect.Value, error
 	}
 }
 
+func parseKey(rawKey string) (*string, error) {
+	key := strings.TrimSpace(rawKey)
+	if strings.Contains(key, "\"") {
+		return nil, errors.New("key cannot contain \"")
+	}
+	if key == "" {
+		return nil, errors.New("key cannot be empty")
+	}
+	return &key, nil
+}
+
+func parseVal(rawVal string) (*string, error) {
+	val := strings.TrimSpace(rawVal)
+
+	quoteCommentGroup := regexp.MustCompile(`^(".*?"|[^"]*?)(\s*#.*)$`)
+	groups := quoteCommentGroup.FindStringSubmatchIndex(val)
+	if groups != nil {
+		val = val[:groups[2*2]]
+	}
+
+	val = strings.ReplaceAll(val, "\"", "")
+	return &val, nil
+}
+
 // LoadConfig loads the provided configuration file and parses it through the
 // use of reflection according to the type definition of config, which has to be
 // a pointer to a struct.
@@ -71,71 +95,37 @@ func LoadConfig(filename string, config interface{}) error {
 	defer f.Close()
 	fh := bufio.NewScanner(f)
 
+	lineNr := 0
 	for fh.Scan() {
-		var key, value string
 		line := fh.Text()
-		lineParts := strings.Split(line, "\"")
-		// Split the line on ", because we want to keep parts
-		// inside "" unchanged.
-		for i, part := range lineParts {
-			if i%2 == 0 {
-				commentIndex := strings.Index(part, "#")
-				if commentIndex != -1 {
-					// Remove comments
-					part = part[:commentIndex]
-				}
-				if i == 0 {
-					// If first part, we want to fetch the key
-					keyVal := strings.SplitN(part, "=", 2)
-					key = strings.TrimSpace(keyVal[0])
-					if len(keyVal) < 2 {
-						// The part didn't contain a =
-						if i != len(lineParts)-1 && commentIndex == -1 {
-							// Not the last line, which means there is a " before the = (if any)
-							return fmt.Errorf("\" are not allowed in key: %s", line)
-						}
-						if key != "" {
-							// Last line, which means no =
-							return fmt.Errorf("config line must contain \"=\": %s", line)
-						}
-						// The line is only comments
-						break
-					} else if key == "" {
-						// Line had a =, but only spaces before it
-						return fmt.Errorf("key can't be empty: %s", line)
-					}
-					// We want to trim space at the start of the value
-					part = strings.TrimLeftFunc(keyVal[1], unicode.IsSpace)
-				}
-				if i == len(lineParts)-1 || commentIndex != -1 {
-					// Last part, we want to trim space at the end of the value
-					part = strings.TrimRightFunc(part, unicode.IsSpace)
-				}
-				if commentIndex != -1 {
-					// The part had a comment char, ignore the rest of the parts
-					value += part
-					break
-				}
-			}
-			value += part
-		}
+		lineNr++
 
-		if key == "" {
-			// The line is only comments
+		line = strings.TrimSpace(line)
+		if line == "" || line[0] == '#' {
 			continue
 		}
 
-		if value == "" {
-			return fmt.Errorf("value of key \"%s\" can't be empty", key)
+		keyVal := strings.SplitN(line, "=", 2)
+		if len(keyVal) != 2 {
+			return fmt.Errorf("syntax error parsing config (%s:%d): config line must contain '='", filename, lineNr)
 		}
 
-		// Fetch the field in the config struct with the same name as the key
-		field := configReflect.FieldByName(key)
+		key, err := parseKey(keyVal[0])
+		if err != nil {
+			return fmt.Errorf("syntax error parsing config (%s:%d): %s", filename, lineNr, err.Error())
+		}
+
+		value, err := parseVal(keyVal[1])
+		if err != nil {
+			return fmt.Errorf("syntax error parsing config (%s:%d): %s", filename, lineNr, err.Error())
+		}
+
+		field := configReflect.FieldByName(*key)
 		if !field.IsValid() {
-			return fmt.Errorf("config key is not valid: %s", key)
+			return fmt.Errorf("syntax error parsing config (%s:%d): config key is not valid: '%s'", filename, lineNr, *key)
 		}
 		if !field.CanSet() {
-			return fmt.Errorf("cannot set unexported field: %s", key)
+			return fmt.Errorf("syntax error parsing config (%s:%d): cannot set unexported field: '%s'", filename, lineNr, *key)
 		}
 
 		switch field.Kind() {
@@ -146,17 +136,16 @@ func LoadConfig(filename string, config interface{}) error {
 			}
 
 			// Convert the value (string) to Value struct defined in reflect.
-			v, err := parseField(key, value, field.Type().Elem())
+			v, err := parseField(*key, *value, field.Type().Elem())
 			if err != nil {
-				return err
+				return fmt.Errorf("syntax error parsing config (%s:%d): %s", filename, lineNr, err.Error())
 			}
 
-			// Add value to the config-slice.
 			field.Set(reflect.Append(field, v))
 		default:
-			v, err := parseField(key, value, field.Type())
+			v, err := parseField(*key, *value, field.Type())
 			if err != nil {
-				return err
+				return fmt.Errorf("syntax error parsing config (%s:%d): %s", filename, lineNr, err.Error())
 			}
 			field.Set(v)
 		}
