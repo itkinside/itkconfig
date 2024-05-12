@@ -1,3 +1,3 @@
 module github.com/itkinside/itkconfig
 
-go 1.3.3
+go 1.12
