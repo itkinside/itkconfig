@@ -306,3 +306,27 @@ Could not parse config correctly with comment inside of string.
 	got:      %#v`, want, config)
 	}
 }
+
+func TestEndOfLineComment(t *testing.T) {
+	type Config struct {
+		Foo int
+	}
+
+	config := Config{
+		Foo: 0,
+	}
+	err := LoadConfig("test_configs/endoflinecomment.cfg", &config)
+	if err != nil {
+		t.Fatalf("Could not parse config with escaped quote: %s", err.Error())
+	}
+
+	want := Config{
+		Foo: 1,
+	}
+	if want != config {
+		t.Fatalf(`
+Could not parse config correctly with comment at the end of the line.
+	expected: %#v
+	got:      %#v`, want, config)
+	}
+}
