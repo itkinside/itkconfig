@@ -338,3 +338,13 @@ func TestFullLineComment(t *testing.T) {
 		t.Fatalf("Could not parse config with full line comment: %s", err.Error())
 	}
 }
+
+func TestKeyWithQuote(t *testing.T) {
+	type Config struct {
+		Key string
+	}
+	err := LoadConfig("test_configs/keywithquote.cfg", &Config{Key: "test"})
+	if err == nil {
+		t.Fatal("Key with quote should not be allowed.")
+	}
+}
