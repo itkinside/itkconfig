@@ -282,3 +282,27 @@ Could not parse config correctly with quotes inside correctly.
 	got:      %#v`, want, config)
 	}
 }
+
+func TestStringWithComment(t *testing.T) {
+	type Config struct {
+		Foo string
+	}
+
+	config := Config{
+		Foo: "",
+	}
+	err := LoadConfig("test_configs/stringwithcomment.cfg", &config)
+	if err != nil {
+		t.Fatalf("Could not parse config with escaped quote: %s", err.Error())
+	}
+
+	want := Config{
+		Foo: "#something",
+	}
+	if want != config {
+		t.Fatalf(`
+Could not parse config correctly with comment inside of string.
+	expected: %#v
+	got:      %#v`, want, config)
+	}
+}
