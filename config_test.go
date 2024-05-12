@@ -390,3 +390,27 @@ Could not parse config correctly with wierd syntax correctly.
 	got:      %#v`, want, config)
 	}
 }
+
+func TestEscapedQuote(t *testing.T) {
+	type Config struct {
+		Foo string
+	}
+
+	config := Config{
+		Foo: "",
+	}
+	err := LoadConfig("test_configs/escapedquote.cfg", &config)
+	if err != nil {
+		t.Fatalf("Could not parse config with escaped quote: %s", err.Error())
+	}
+
+	want := Config{
+		Foo: "hel\"lo",
+	}
+	if want != config {
+		t.Fatalf(`
+Could not parse config correctly with quotes inside correctly.
+	expected: %#v
+	got:      %#v`, want, config)
+	}
+}

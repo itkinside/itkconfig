@@ -114,6 +114,12 @@ Foo = "ba"r"
 # Gets parsed as "bar"
 ```
 
+If a string containing double quotes is desired, they can be escaped:
+```bash
+Foo = "ba\"r"
+# Gets parsed as "ba"r"
+```
+
 #### Lists of key-values
 
 Often a simple Key => Value mapping is not sufficient, and you want a

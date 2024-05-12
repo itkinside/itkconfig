@@ -70,7 +70,14 @@ func parseVal(rawVal string) (*string, error) {
 		val = val[:groups[2*2]]
 	}
 
-	val = strings.ReplaceAll(val, "\"", "")
+	// Remove all '"', and replace '\"' with '"'
+	if val[0] == '"' {
+		val = val[1:]
+	}
+	nonEscapedQuotes := regexp.MustCompile(`[^\\]"`)
+	val = nonEscapedQuotes.ReplaceAllStringFunc(val, func(s string) string { return s[:len(s)-1] })
+	val = strings.ReplaceAll(val, `\"`, `"`)
+
 	return &val, nil
 }
 
