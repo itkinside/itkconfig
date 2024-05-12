@@ -330,3 +330,11 @@ Could not parse config correctly with comment at the end of the line.
 	got:      %#v`, want, config)
 	}
 }
+
+func TestFullLineComment(t *testing.T) {
+	type Config struct{}
+	err := LoadConfig("test_configs/fulllinecomment.cfg", &Config{})
+	if err != nil {
+		t.Fatalf("Could not parse config with full line comment: %s", err.Error())
+	}
+}
