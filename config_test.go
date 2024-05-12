@@ -366,3 +366,27 @@ func TestEmptyKey(t *testing.T) {
 		t.Fatal("Empty key is not allowed.")
 	}
 }
+
+func TestWierdEdgeCase(t *testing.T) {
+	type Config struct {
+		Foo string
+	}
+
+	config := Config{
+		Foo: "",
+	}
+	err := LoadConfig("test_configs/wierdedgecase.cfg", &config)
+	if err != nil {
+		t.Fatalf("Could not parse config with wierd syntax: %s", err.Error())
+	}
+
+	want := Config{
+		Foo: "hello",
+	}
+	if want != config {
+		t.Fatalf(`
+Could not parse config correctly with wierd syntax correctly.
+	expected: %#v
+	got:      %#v`, want, config)
+	}
+}
