@@ -348,3 +348,13 @@ func TestKeyWithQuote(t *testing.T) {
 		t.Fatal("Key with quote should not be allowed.")
 	}
 }
+
+func TestNoEquals(t *testing.T) {
+	type Config struct {
+		Foo string
+	}
+	err := LoadConfig("test_configs/noequals.cfg", &Config{Foo: ""})
+	if err == nil {
+		t.Fatal("Key with no equals should not be allowed.")
+	}
+}
