@@ -358,3 +358,11 @@ func TestNoEquals(t *testing.T) {
 		t.Fatal("Key with no equals should not be allowed.")
 	}
 }
+
+func TestEmptyKey(t *testing.T) {
+	type Config struct{}
+	err := LoadConfig("test_configs/emptykey.cfg", &Config{})
+	if err == nil {
+		t.Fatal("Empty key is not allowed.")
+	}
+}
