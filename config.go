@@ -158,7 +158,6 @@ func LoadConfig(filename string, config interface{}) error {
 				field.Set(reflect.MakeSlice(field.Type(), 0, 0))
 			}
 
-			// Convert the value (string) to Value struct defined in reflect.
 			v, err := parseField(*key, *value, field.Type().Elem())
 			if err != nil {
 				return syntaxError(err.Error())
