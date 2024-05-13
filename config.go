@@ -71,11 +71,11 @@ func parseVal(rawVal string) (*string, error) {
 	}
 
 	// Remove all '"', and replace '\"' with '"'
+	nonEscapedQuotes := regexp.MustCompile(`[^\\]"`)
+	val = nonEscapedQuotes.ReplaceAllStringFunc(val, func(s string) string { return s[:len(s)-1] })
 	if val[0] == '"' {
 		val = val[1:]
 	}
-	nonEscapedQuotes := regexp.MustCompile(`[^\\]"`)
-	val = nonEscapedQuotes.ReplaceAllStringFunc(val, func(s string) string { return s[:len(s)-1] })
 	val = strings.ReplaceAll(val, `\"`, `"`)
 
 	return &val, nil
