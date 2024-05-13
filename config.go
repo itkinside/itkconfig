@@ -153,8 +153,7 @@ func LoadConfig(filename string, config interface{}) error {
 
 		switch field.Kind() {
 		case reflect.Slice:
-			// Create a empty slice, if no slice exists for this key already.
-			if field.IsNil() || lastUpdate[*key] == 0 {
+			if lastUpdate[*key] == 0 {
 				field.Set(reflect.MakeSlice(field.Type(), 0, 0))
 			}
 
