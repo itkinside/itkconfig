@@ -89,8 +89,8 @@ Could it be more simple, and yet so powerful?
 
 #### Comments
 
-The hash symbol is your friend, and you can use it wherever you want.
-You may also use it inside a variable by escaping it:
+The hash symbol is your friend, and you can use it wherever you want. You may
+also use it inside a variable by escaping it:
 
 ```bash
 # This is a comment
@@ -122,9 +122,9 @@ Foo = "ba\"r"
 
 #### Lists of key-values
 
-Often a simple Key => Value mapping is not sufficient, and you want a
-key mapping to an array of values. This if fully supported and you can
-define your struct as:
+Often a simple Key => Value mapping is not sufficient, and you want a key
+mapping to an array of values. This if fully supported and you can define your
+struct as:
 
 ```go
 type Config struct {
@@ -150,8 +150,8 @@ Which, you guessed it, will map to the arrays `Foo{"string number one.",
 
 #### Which types are valid?
 
-At the moment the following types are valid to use when unmarshaling
-your config-file:
+At the moment the following types are valid to use when unmarshaling your
+config-file:
 
 * String
 * Int, Int8, Int16, Int32 and Int64
@@ -159,19 +159,18 @@ your config-file:
 * Float32 and Float64
 * Bool
 
-And every one of those as slices, as well. For type definitions and more
-details about other types in Golang please refer to [their doc on the
+And every one of those as slices, as well. For type definitions and more details
+about other types in Golang please refer to [their doc on the
 subject](http://golang.org/ref/spec#Types).
 
 #### Using defaults
 
-There are three parts to parsing and defining a config in your
-application, given you want to set default values different from those
-used by Golang.
+There are three parts to parsing and defining a config in your application,
+given you want to set default values different from those used by Golang.
 
-First you need to define your Config-type. This is done in order to
-unmarshal correctly. It is an important step for a type-safe language.
-An example definition looks like:
+First you need to define your Config-type. This is done in order to unmarshal
+correctly. It is an important step for a type-safe language.  An example
+definition looks like:
 
 ```go
 type Config struct {
@@ -180,8 +179,8 @@ type Config struct {
 ```
 
 
-Second you need to create a default-variable of the type you defined in
-the previous step.
+Second you need to create a default-variable of the type you defined in the
+previous step.
 
 ```go
 cfg := &Config{
@@ -189,19 +188,19 @@ cfg := &Config{
 }
 ```
 
-As you can see our variable `cfg` is a pointer to a Config-type. This
-pointer is passed on to ITKconfig which sets the appropriate fields
-based on your config file.
+As you can see our variable `cfg` is a pointer to a Config-type. This pointer is
+passed on to ITKconfig which sets the appropriate fields based on your config
+file.
 
-Third you use ITKconfig to parse your config-file, validate it and then
-override your defaults. This is simply done by:
+Third you use ITKconfig to parse your config-file, validate it and then override
+your defaults. This is simply done by:
 
 ```go
 itkconfig.LoadConfig("filename.conf", cfg)
 ```
 
-Non-slice keys can only be defined once per config file. Multiple 
-definitions will produce an error.
+Non-slice keys can only be defined once per config file. Multiple definitions
+will produce an error.
 
 ## Authors
 
