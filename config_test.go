@@ -457,7 +457,7 @@ func TestTwoQuote(t *testing.T) {
 	}
 	if want != config {
 		t.Fatalf(`
-Could not parse config correctly with quotes inside correctly.
+Could not parse config with multiple quotes correctly.
 	expected: %#v
 	got:      %#v`, want, config)
 	}
