@@ -462,3 +462,17 @@ Could not parse config with multiple quotes correctly.
 	got:      %#v`, want, config)
 	}
 }
+
+func TestMultipleDefinitions(t *testing.T) {
+	type Config struct {
+		Foo string
+	}
+
+	config := Config{
+		Foo: "",
+	}
+	err := LoadConfig("test_configs/multipledefinitions.cfg", &config)
+	if err == nil {
+		t.Fatalf("Should not be allowed to redefine a key.")
+	}
+}

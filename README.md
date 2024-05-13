@@ -200,6 +200,9 @@ override your defaults. This is simply done by:
 itkconfig.LoadConfig("filename.conf", cfg)
 ```
 
+Non-slice keys can only be defined once per config file. Multiple 
+definitions will produce an error.
+
 ## Authors
 
 * Trygve Aaberge ([trygveaa@samfundet.no](mailto:trygveaa@samfundet.no))

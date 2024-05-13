@@ -165,6 +165,10 @@ func LoadConfig(filename string, config interface{}) error {
 
 			field.Set(reflect.Append(field, v))
 		default:
+			if lastUpdate[*key] != 0 {
+				return syntaxError(fmt.Sprintf("key '%s' was defined multiple times, initially on line %d (did you mean to define a slice?)", *key, lastUpdate[*key]))
+			}
+
 			v, err := parseField(*key, *value, field.Type())
 			if err != nil {
 				return syntaxError(err.Error())
