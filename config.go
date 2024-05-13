@@ -101,6 +101,11 @@ func LoadConfig(filename string, config interface{}) error {
 		return errors.New("config argument must be a pointer to a struct")
 	}
 
+	overwritten := make(map[string]bool)
+	for _, field := range reflect.VisibleFields(configReflect.Type()) {
+		overwritten[field.Name] = false
+	}
+
 	f, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -144,7 +149,7 @@ func LoadConfig(filename string, config interface{}) error {
 		switch field.Kind() {
 		case reflect.Slice:
 			// Create a empty slice, if no slice exists for this key already.
-			if field.IsNil() {
+			if field.IsNil() || !overwritten[*key] {
 				field.Set(reflect.MakeSlice(field.Type(), 0, 0))
 			}
 
@@ -162,6 +167,7 @@ func LoadConfig(filename string, config interface{}) error {
 			}
 			field.Set(v)
 		}
+		overwritten[*key] = true
 	}
 
 	return nil

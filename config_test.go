@@ -168,7 +168,7 @@ func TestLoadingExampleConfig(t *testing.T) {
 		Port:            8000,
 		TemplatesFolder: "templates",
 		Debug:           true,
-		AdminEmail:      []string{"test@example.org", "foo@mailinator.com", "bar@mailinator.com"}, // Slices append to defaults
+		AdminEmail:      []string{"foo@mailinator.com", "bar@mailinator.com"},
 	}
 
 	err := LoadConfig("test_configs/example.cfg", &config)

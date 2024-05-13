@@ -200,10 +200,6 @@ override your defaults. This is simply done by:
 itkconfig.LoadConfig("filename.conf", cfg)
 ```
 
-If you have defined a slice-type in your struct the default-slice will
-not be overwritten, but rather elements from the config-file will be
-appended on.
-
 ## Authors
 
 * Trygve Aaberge ([trygveaa@samfundet.no](mailto:trygveaa@samfundet.no))
