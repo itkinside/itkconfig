@@ -101,9 +101,9 @@ func LoadConfig(filename string, config interface{}) error {
 		return errors.New("config argument must be a pointer to a struct")
 	}
 
-	overwritten := make(map[string]bool)
+	lastUpdate := make(map[string]uint)
 	for _, field := range reflect.VisibleFields(configReflect.Type()) {
-		overwritten[field.Name] = false
+		lastUpdate[field.Name] = 0
 	}
 
 	f, err := os.Open(filename)
@@ -113,7 +113,7 @@ func LoadConfig(filename string, config interface{}) error {
 	defer f.Close()
 	fh := bufio.NewScanner(f)
 
-	lineNr := 0
+	lineNr := uint(0)
 	syntaxError := func(message string) error {
 		return fmt.Errorf("syntax error parsing config (%s:%d): %s", filename, lineNr, message)
 	}
@@ -153,7 +153,7 @@ func LoadConfig(filename string, config interface{}) error {
 		switch field.Kind() {
 		case reflect.Slice:
 			// Create a empty slice, if no slice exists for this key already.
-			if field.IsNil() || !overwritten[*key] {
+			if field.IsNil() || lastUpdate[*key] == 0 {
 				field.Set(reflect.MakeSlice(field.Type(), 0, 0))
 			}
 
@@ -171,7 +171,7 @@ func LoadConfig(filename string, config interface{}) error {
 			}
 			field.Set(v)
 		}
-		overwritten[*key] = true
+		lastUpdate[*key] = lineNr
 	}
 
 	return nil
