@@ -114,6 +114,10 @@ func LoadConfig(filename string, config interface{}) error {
 	fh := bufio.NewScanner(f)
 
 	lineNr := 0
+	syntaxError := func(message string) error {
+		return fmt.Errorf("syntax error parsing config (%s:%d): %s", filename, lineNr, message)
+	}
+
 	for fh.Scan() {
 		line := fh.Text()
 		lineNr++
@@ -125,25 +129,25 @@ func LoadConfig(filename string, config interface{}) error {
 
 		keyVal := strings.SplitN(line, "=", 2)
 		if len(keyVal) != 2 {
-			return fmt.Errorf("syntax error parsing config (%s:%d): config line must contain '='", filename, lineNr)
+			return syntaxError("line must contain '='")
 		}
 
 		key, err := parseKey(keyVal[0])
 		if err != nil {
-			return fmt.Errorf("syntax error parsing config (%s:%d): %s", filename, lineNr, err.Error())
+			return syntaxError(err.Error())
 		}
 
 		value, err := parseVal(keyVal[1])
 		if err != nil {
-			return fmt.Errorf("syntax error parsing config (%s:%d): %s", filename, lineNr, err.Error())
+			return syntaxError(err.Error())
 		}
 
 		field := configReflect.FieldByName(*key)
 		if !field.IsValid() {
-			return fmt.Errorf("syntax error parsing config (%s:%d): config key is not valid: '%s'", filename, lineNr, *key)
+			return syntaxError(fmt.Sprintf("the config key '%s' is not defined", *key))
 		}
 		if !field.CanSet() {
-			return fmt.Errorf("syntax error parsing config (%s:%d): cannot set unexported field: '%s'", filename, lineNr, *key)
+			return syntaxError(fmt.Sprintf("cannot set unexported field: '%s'", *key))
 		}
 
 		switch field.Kind() {
@@ -156,14 +160,14 @@ func LoadConfig(filename string, config interface{}) error {
 			// Convert the value (string) to Value struct defined in reflect.
 			v, err := parseField(*key, *value, field.Type().Elem())
 			if err != nil {
-				return fmt.Errorf("syntax error parsing config (%s:%d): %s", filename, lineNr, err.Error())
+				return syntaxError(err.Error())
 			}
 
 			field.Set(reflect.Append(field, v))
 		default:
 			v, err := parseField(*key, *value, field.Type())
 			if err != nil {
-				return fmt.Errorf("syntax error parsing config (%s:%d): %s", filename, lineNr, err.Error())
+				return syntaxError(err.Error())
 			}
 			field.Set(v)
 		}
