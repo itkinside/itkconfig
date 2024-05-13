@@ -476,3 +476,28 @@ func TestMultipleDefinitions(t *testing.T) {
 		t.Fatalf("Should not be allowed to redefine a key.")
 	}
 }
+
+func TestSliceWithNilAsDefault(t *testing.T) {
+	type Config struct {
+		Foo []string
+	}
+
+	config := Config{
+		Foo: nil,
+	}
+	err := LoadConfig("test_configs/multipledefinitions.cfg", &config)
+	if err != nil {
+		t.Fatalf("Could not parse config with string slice with nil default correctly: %s", err.Error())
+	}
+
+	want := Config{
+		Foo: []string{"bar", "baz"},
+	}
+	if !reflect.DeepEqual(want, config) {
+		t.Fatalf(`
+Could not parse config with string slice with nil default.
+	expected: %#v
+	got:      %#v`, want, config)
+	}
+
+}
