@@ -70,6 +70,7 @@ func parseVal(rawVal string) (*string, error) {
 		val = val[:groups[2*2]]
 	}
 
+	// Remove non-escaped quotes and replace escaped quotes.
 	var sb strings.Builder
 	for i, r := range val {
 		if r == '"' {
